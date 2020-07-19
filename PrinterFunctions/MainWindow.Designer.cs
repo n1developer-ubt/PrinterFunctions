@@ -34,7 +34,6 @@
             this.btnPauseSelected = new System.Windows.Forms.Button();
             this.btnResumeSelected = new System.Windows.Forms.Button();
             this.cbQueue = new System.Windows.Forms.ComboBox();
-            this.btnReloadQueues = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -44,7 +43,7 @@
             this.btnDeleteAll.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.btnDeleteAll.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnDeleteAll.ForeColor = System.Drawing.Color.White;
-            this.btnDeleteAll.Location = new System.Drawing.Point(0, 115);
+            this.btnDeleteAll.Location = new System.Drawing.Point(0, 75);
             this.btnDeleteAll.Name = "btnDeleteAll";
             this.btnDeleteAll.Size = new System.Drawing.Size(438, 44);
             this.btnDeleteAll.TabIndex = 0;
@@ -60,7 +59,7 @@
             this.tableLayoutPanel1.Controls.Add(this.btnPauseSelected, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.btnResumeSelected, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 74);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 34);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 1;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
@@ -105,27 +104,13 @@
             this.cbQueue.Name = "cbQueue";
             this.cbQueue.Size = new System.Drawing.Size(438, 32);
             this.cbQueue.TabIndex = 2;
-            // 
-            // btnReloadQueues
-            // 
-            this.btnReloadQueues.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(170)))), ((int)(((byte)(85)))), ((int)(((byte)(170)))));
-            this.btnReloadQueues.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnReloadQueues.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnReloadQueues.ForeColor = System.Drawing.Color.White;
-            this.btnReloadQueues.Location = new System.Drawing.Point(0, 32);
-            this.btnReloadQueues.Name = "btnReloadQueues";
-            this.btnReloadQueues.Size = new System.Drawing.Size(438, 42);
-            this.btnReloadQueues.TabIndex = 3;
-            this.btnReloadQueues.Text = "Reload Queues";
-            this.btnReloadQueues.UseVisualStyleBackColor = false;
-            this.btnReloadQueues.Click += new System.EventHandler(this.btnReloadQueues_Click);
+            this.cbQueue.SelectedIndexChanged += new System.EventHandler(this.cbQueue_SelectedIndexChanged);
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(438, 159);
-            this.Controls.Add(this.btnReloadQueues);
+            this.ClientSize = new System.Drawing.Size(438, 119);
             this.Controls.Add(this.cbQueue);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.btnDeleteAll);
@@ -144,7 +129,6 @@
         private System.Windows.Forms.Button btnPauseSelected;
         private System.Windows.Forms.Button btnResumeSelected;
         private System.Windows.Forms.ComboBox cbQueue;
-        private System.Windows.Forms.Button btnReloadQueues;
     }
 }
 

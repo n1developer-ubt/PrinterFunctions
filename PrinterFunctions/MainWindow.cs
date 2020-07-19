@@ -14,6 +14,7 @@ namespace PrinterFunctions
 {
     public partial class MainWindow : Form
     {
+        private PrintServer _printers;
         private PrintServer _printServer;
 
         public MainWindow()
@@ -27,46 +28,26 @@ namespace PrinterFunctions
 
         private void Configure()
         {
-
             cbQueue.Items.Clear();
 
-            var x = new[]
-                {EnumeratedPrintQueueTypes.Local ,
-                    EnumeratedPrintQueueTypes.Shared ,
-                    EnumeratedPrintQueueTypes.Connections ,
-                    EnumeratedPrintQueueTypes.TerminalServer ,
-                    EnumeratedPrintQueueTypes.Fax ,
-                    EnumeratedPrintQueueTypes.KeepPrintedJobs ,
-                    EnumeratedPrintQueueTypes.EnableBidi ,
-                    EnumeratedPrintQueueTypes.RawOnly ,
-                    EnumeratedPrintQueueTypes.WorkOffline ,
-                    EnumeratedPrintQueueTypes.PublishedInDirectoryServices ,
-                    EnumeratedPrintQueueTypes.DirectPrinting ,
-                    EnumeratedPrintQueueTypes.Queued ,
-                    EnumeratedPrintQueueTypes.PushedUserConnection ,
-                    EnumeratedPrintQueueTypes.PushedMachineConnection ,
-                    EnumeratedPrintQueueTypes.EnableDevQuery };
+            _printers = new PrintServer();
+            _printServer = new PrintServer(@"\\pharmacy02");
 
+            EnumeratedPrintQueueTypes[] enumerationFlags = {EnumeratedPrintQueueTypes.Shared};
 
-            _printServer = new PrintServer();
+            var items = new List<string>();
 
-            EnumeratedPrintQueueTypes[] enumerationFlags = {EnumeratedPrintQueueTypes.Local};
-
-            LocalPrintServer printServer = new LocalPrintServer();
-            
-            foreach (var queue in printServer.GetPrintQueues(enumerationFlags))
+            foreach (var queue in _printers.GetPrintQueues(enumerationFlags))
             {
-                cbQueue.Items.Add(queue.FullName);
+                items.Add(queue.FullName);
             }
 
-            //foreach (var pq in ps.GetPrintQueues())
-            //{
-            //    foreach (var job in ps.GetPrintQueue(pq.Name).GetPrintJobInfoCollection())
-            //    {
-            //        MessageBox.Show(job.Name);
-            //        job.Pause();
-            //    }
-            //}
+            foreach (var queue in _printServer.GetPrintQueues())
+            {
+                items.Add(queue.FullName);
+            }
+
+            cbQueue.Items.AddRange(items.ToArray<string>());
         }
 
         private void SetPosition()
@@ -76,73 +57,44 @@ namespace PrinterFunctions
                 workingArea.Bottom - Size.Height);
         }
 
-        private void btnReloadQueues_Click(object sender, EventArgs e)
-        {
-            Configure();
-        }
-
         private void PerformAction(ActionType action)
         {
+            if (cbQueue.SelectedItem == null)
+            {
+                MessageBox.Show("Please select a queue");
+            }
+
+            var printerName = cbQueue.SelectedItem.ToString();
+
+            var printers = printerName.StartsWith(@"\\") ? _printServer : _printers;
+
             switch (action)
             {
-                case ActionType.PauseAll:
-                    foreach (var queue in _printServer.GetPrintQueues())
-                    {
-                        foreach (var jobs in _printServer.GetPrintQueue(queue.FullName).GetPrintJobInfoCollection())
-                        {
-                            jobs.Pause();
-                        }
-                    }
-                    break;
-                case ActionType.ResumeAll:
-                    foreach (var queue in _printServer.GetPrintQueues())
-                    {
-                        foreach (var jobs in _printServer.GetPrintQueue(queue.FullName).GetPrintJobInfoCollection())
-                        {
-                            jobs.Resume();       
-                        }
-                    }
-                    break;
-
                 case ActionType.DeleteAll:
-                    foreach (var queue in _printServer.GetPrintQueues())
+                    foreach (var jobs in printers.GetPrintQueue(printerName).GetPrintJobInfoCollection())
                     {
-                        foreach (var jobs in _printServer.GetPrintQueue(queue.FullName).GetPrintJobInfoCollection())
-                        {
-                            jobs.Cancel();
-                        }
+                        jobs.Cancel();
                     }
                     break;
 
                 case ActionType.Pause:
-
-                    if (cbQueue.SelectedItem == null)
+                    using (PrintQueue pq = new PrintQueue(printers, printerName,
+                        PrintSystemDesiredAccess.AdministratePrinter))
                     {
-                        MessageBox.Show("Please select a queue");
-                        break;
+                        pq.Pause();
                     }
-
-                    foreach (var jobs in _printServer.GetPrintQueue(cbQueue.SelectedItem.ToString()).GetPrintJobInfoCollection())
-                    {
-                        jobs.Pause();
-                    }
-
                     break;
 
                 case ActionType.Resume:
-
-                    if (cbQueue.SelectedItem == null)
+                    using (PrintQueue pq = new PrintQueue(printers, printerName,
+                        PrintSystemDesiredAccess.AdministratePrinter))
                     {
-                        MessageBox.Show("Please select a queue");
-                        break;
-                    }
-
-                    foreach (var jobs in _printServer.GetPrintQueue(cbQueue.SelectedItem.ToString()).GetPrintJobInfoCollection())
-                    {
-                        jobs.Resume();
+                        pq.Resume();
                     }
                     break;
             }
+
+            PrinterStateChanged();
         }
 
         private void btnResumeAll_Click(object sender, EventArgs e)
@@ -159,6 +111,27 @@ namespace PrinterFunctions
         {
             PerformAction(ActionType.DeleteAll);
         }
+
+        private void cbQueue_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            PrinterStateChanged();
+        }
+
+        private void PrinterStateChanged()
+        {
+            if (cbQueue.SelectedItem == null)
+                return;
+
+            var printerName = cbQueue.SelectedItem.ToString();
+
+            var printers = printerName.StartsWith(@"\\") ? _printServer : _printers;
+
+            btnDeleteAll.Text = "Delete All [" + printers.GetPrintQueue(printerName).GetPrintJobInfoCollection().Count() + "]";
+
+            btnPauseSelected.Enabled = printers.GetPrintQueue(printerName).IsPaused;
+            btnResumeSelected.Enabled = !printers.GetPrintQueue(printerName).IsPaused;
+        }
+
     }
 
     enum ActionType
