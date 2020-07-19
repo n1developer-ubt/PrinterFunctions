@@ -128,8 +128,10 @@ namespace PrinterFunctions
 
             btnDeleteAll.Text = "Delete All [" + printers.GetPrintQueue(printerName).GetPrintJobInfoCollection().Count() + "]";
 
-            btnPauseSelected.Enabled = printers.GetPrintQueue(printerName).IsPaused;
-            btnResumeSelected.Enabled = !printers.GetPrintQueue(printerName).IsPaused;
+            var isPause = printers.GetPrintQueue(printerName).IsPaused;
+
+            btnPauseSelected.Enabled = isPause;
+            btnResumeSelected.Enabled = !isPause;
         }
 
     }
