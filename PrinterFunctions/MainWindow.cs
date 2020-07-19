@@ -8,7 +8,9 @@ using System.Linq;
 using System.Printing;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows.Forms;
+using Timer = System.Timers.Timer;
 
 namespace PrinterFunctions
 {
@@ -24,6 +26,17 @@ namespace PrinterFunctions
             Configure();
             TopMost = true;
             TopLevel = true;
+
+            Timer t = new Timer(2000);
+            t.Enabled = true;
+            t.Start();
+
+            t.Elapsed += TOnElapsed;
+        }
+
+        private void TOnElapsed(object sender, ElapsedEventArgs e)
+        {
+            PrinterStateChanged();
         }
 
         private void Configure()
@@ -121,7 +134,7 @@ namespace PrinterFunctions
         {
             if (cbQueue.SelectedItem == null)
                 return;
-
+            
             var printerName = cbQueue.SelectedItem.ToString();
 
             var printers = printerName.StartsWith(@"\\") ? _printServer : _printers;
@@ -130,8 +143,8 @@ namespace PrinterFunctions
 
             var isPause = printers.GetPrintQueue(printerName).IsPaused;
 
-            btnPauseSelected.Enabled = isPause;
-            btnResumeSelected.Enabled = !isPause;
+            btnPauseSelected.Enabled = !isPause;
+            btnResumeSelected.Enabled = isPause;
         }
 
     }
