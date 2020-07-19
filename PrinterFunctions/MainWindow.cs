@@ -134,9 +134,21 @@ namespace PrinterFunctions
 
         private void PrinterStateChanged()
         {
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(Check));
+            }
+            else
+            {
+                Check();
+            }
+        }
+
+        private void Check()
+        {
             if (cbQueue.SelectedItem == null)
                 return;
-            
+
             var printerName = cbQueue.SelectedItem.ToString();
 
             var printers = printerName.StartsWith(@"\\") ? _printServer : _printers;
