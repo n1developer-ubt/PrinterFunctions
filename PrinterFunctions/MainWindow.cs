@@ -27,6 +27,8 @@ namespace PrinterFunctions
             TopMost = true;
             TopLevel = true;
 
+            CheckForIllegalCrossThreadCalls = false;
+
             Timer t = new Timer(2000);
             t.Enabled = true;
             t.Start();
